@@ -1,52 +1,72 @@
 "use strict";
 
 import * as React from "react";
-import {StyleSheet, View, Text, Modal, ActivityIndicatorIOS, ProgressBarAndroid, Platform} from "react-native";
+import {StyleSheet, View, Text, ActivityIndicatorIOS, ProgressBarAndroid, Platform, Modal} from "react-native";
+import Dimensions from "Dimensions";
+
 import RootSiblings from 'react-native-root-siblings';
 
+const {width, height} = Dimensions.get('window');
+const [loadingWidth, loadingHeight] = [120, 100];
+
 const styles = StyleSheet.create({
+    container: {},
     center: {
-        justifyContent:"center",
+        justifyContent: "center",
         alignItems: "center"
     },
-    modal: {},
-    wrapper: {
-        width: 120,
-        height: 100,
-        borderRadius: 10
-    },
     text: {
-        color: "#fff"
+        color: "#fff",
+        fontSize: 14
     }
-});
+})
 
-export default class Loading {
-    
+class Loading {
+
+    loading: RootSiblings;
+
     constructor(opts) {
-        this.opts = opts || {};
-        this.loadingView = (
-            <Modal style={[styles.modal]}>
-                <View style={[styles.wrapper, styles.center]}>
-                    {Platform.OS === 'ios' ?
-                        <ActivityIndicatorIOS animating={true} color='white' style={styles.center} size='small' /> :
-                        <ProgressBarAndroid styleAttr="Inverse" color='white' />
-                    }}
-                    <Text style={[styles.text]}>{this.opts.text || "loading..."}</Text>
+
+    }
+
+    renderLoadingView() {
+        if (Platform.OS === 'ios') {
+            return (
+                <ActivityIndicatorIOS
+                    animating={true}
+                    color='white'
+                    style={styles.center}
+                    size='small'
+                />
+            );
+        } else {
+            return (
+                <ProgressBarAndroid styleAttr="Inverse" color='white' />
+            );
+        }
+    }
+    show(text?: string) {
+        this.loading = new RootSiblings(
+            <Modal transparent={true} onRequestClose={()=>{}}>
+                <View
+                    style={[styles.center, {
+                        top: (height - loadingHeight) / 2,
+                        left: (width - loadingWidth) / 2,
+                        backgroundColor: "rgba(0,0,0,.4)",
+                        width: loadingWidth,
+                        height: loadingHeight,
+                        borderRadius: 10
+                    }]}>
+                    {this.renderLoadingView()}
+                    <Text style={styles.text}>{text || "loading..."}</Text>
                 </View>
             </Modal>
         )
     }
 
-    show() {
-        this.loading = new RootSiblings(this.loadingView);
-        if (this.opts.duration) {
-            setTimeout(() => {
-                this.hide();
-            }, this.opts.duration);
-        }
-    }
-
-    hide() {
-        this.loading && this.loading.destory();
+    destroy() {
+        this.loading.destroy();
     }
 }
+
+export default Loading;
