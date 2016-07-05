@@ -1,5 +1,6 @@
 "use strict";
 
+import * as React from "react";
 import {StyleSheet, View, Text, Modal, ActivityIndicatorIOS, ProgressBarAndroid, Platform} from "react-native";
 import RootSiblings from 'react-native-root-siblings';
 
